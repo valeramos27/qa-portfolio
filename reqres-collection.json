@@ -1,0 +1,255 @@
+{
+  "info": {
+    "name": "ReqRes API — QA Test Collection",
+    "description": "Postman collection with automated tests for ReqRes public API. Covers authentication, user CRUD, pagination, and error handling. Created as portfolio sample by Valentina Ramos — QA Analyst.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 — Authentication",
+      "item": [
+        {
+          "name": "POST Login — Valid credentials",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"eve.holt@reqres.in\",\n  \"password\": \"cityslicka\"\n}"
+            },
+            "url": { "raw": "https://reqres.in/api/login", "host": ["reqres.in"], "path": ["api", "login"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                "pm.test('Response has token', () => {",
+                "  const body = pm.response.json();",
+                "  pm.expect(body).to.have.property('token');",
+                "  pm.expect(body.token).to.be.a('string').and.not.empty;",
+                "});",
+                "pm.test('Response time < 1000ms', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "POST Login — Missing password (negative)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"eve.holt@reqres.in\"\n}"
+            },
+            "url": { "raw": "https://reqres.in/api/login", "host": ["reqres.in"], "path": ["api", "login"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 400 for missing password', () => pm.response.to.have.status(400));",
+                "pm.test('Error message present', () => {",
+                "  const body = pm.response.json();",
+                "  pm.expect(body).to.have.property('error');",
+                "  pm.expect(body.error).to.include('Missing password');",
+                "});"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "02 — Users CRUD",
+      "item": [
+        {
+          "name": "GET List Users — Page 1",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "https://reqres.in/api/users?page=1", "host": ["reqres.in"], "path": ["api", "users"], "query": [{ "key": "page", "value": "1" }] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                "pm.test('Response structure is valid', () => {",
+                "  const body = pm.response.json();",
+                "  pm.expect(body).to.have.all.keys('page', 'per_page', 'total', 'total_pages', 'data');",
+                "  pm.expect(body.data).to.be.an('array').and.not.empty;",
+                "});",
+                "pm.test('Each user has required fields', () => {",
+                "  const users = pm.response.json().data;",
+                "  users.forEach(user => {",
+                "    pm.expect(user).to.have.all.keys('id', 'email', 'first_name', 'last_name', 'avatar');",
+                "    pm.expect(user.email).to.match(/.+@.+\\..+/);",
+                "  });",
+                "});",
+                "pm.collectionVariables.set('totalPages', pm.response.json().total_pages);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "GET Single User — Valid ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "https://reqres.in/api/users/2", "host": ["reqres.in"], "path": ["api", "users", "2"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                "pm.test('User data returned correctly', () => {",
+                "  const { data } = pm.response.json();",
+                "  pm.expect(data.id).to.eql(2);",
+                "  pm.expect(data.email).to.be.a('string');",
+                "});"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "GET Single User — Non-existent ID (negative)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "https://reqres.in/api/users/9999", "host": ["reqres.in"], "path": ["api", "users", "9999"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 404 for non-existent user', () => pm.response.to.have.status(404));",
+                "pm.test('Response body is empty object', () => {",
+                "  const body = pm.response.json();",
+                "  pm.expect(Object.keys(body)).to.have.length(0);",
+                "});"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "POST Create User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Valentina\",\n  \"job\": \"QA Analyst\"\n}"
+            },
+            "url": { "raw": "https://reqres.in/api/users", "host": ["reqres.in"], "path": ["api", "users"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                "pm.test('Created user has ID and timestamp', () => {",
+                "  const body = pm.response.json();",
+                "  pm.expect(body).to.have.property('id');",
+                "  pm.expect(body).to.have.property('createdAt');",
+                "  pm.expect(body.name).to.eql('Valentina');",
+                "});",
+                "pm.collectionVariables.set('createdUserId', pm.response.json().id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "PUT Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Valentina Ramos\",\n  \"job\": \"Senior QA Analyst\"\n}"
+            },
+            "url": { "raw": "https://reqres.in/api/users/2", "host": ["reqres.in"], "path": ["api", "users", "2"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                "pm.test('UpdatedAt timestamp present', () => {",
+                "  pm.expect(pm.response.json()).to.have.property('updatedAt');",
+                "});"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "DELETE User",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "https://reqres.in/api/users/2", "host": ["reqres.in"], "path": ["api", "users", "2"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 204 No Content', () => pm.response.to.have.status(204));",
+                "pm.test('Response body is empty', () => pm.expect(pm.response.text()).to.be.empty);"
+              ]
+            }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "03 — Pagination",
+      "item": [
+        {
+          "name": "GET Last Page — Boundary test",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "https://reqres.in/api/users?page=2", "host": ["reqres.in"], "path": ["api", "users"], "query": [{ "key": "page", "value": "2" }] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                "pm.test('Page number matches request', () => {",
+                "  pm.expect(pm.response.json().page).to.eql(2);",
+                "});",
+                "pm.test('Data array is not empty on valid page', () => {",
+                "  pm.expect(pm.response.json().data).to.be.an('array').and.not.empty;",
+                "});"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "GET Beyond Last Page — Boundary test (negative)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "https://reqres.in/api/users?page=999", "host": ["reqres.in"], "path": ["api", "users"], "query": [{ "key": "page", "value": "999" }] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                "pm.test('Data array is empty beyond last page — BUG CHECK', () => {",
+                "  const data = pm.response.json().data;",
+                "  pm.expect(data).to.be.an('array');",
+                "  if (data.length > 0) {",
+                "    console.warn('POSSIBLE BUG: Page 999 returned data — should be empty');",
+                "  }",
+                "});"
+              ]
+            }
+          }]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "totalPages", "value": "" },
+    { "key": "createdUserId", "value": "" }
+  ]
+}
