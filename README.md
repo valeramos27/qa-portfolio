@@ -1,7 +1,7 @@
 # Valentina Ramos — QA Portfolio
 
 **QA Analyst | Banking & Fintech | SQL · API Testing · BPMN**  
-📍 Montevideo, Uruguay · Remote-first · Available for freelance
+📍 Montevideo, Uruguay · Remote · Available for freelance
 
 ---
 
@@ -9,7 +9,7 @@
 
 QA Analyst with 4+ years of experience in banking software projects. I combine technical testing skills (SQL, APIs, logs) with a business process mindset (BPMN, requirements analysis, stakeholder communication).
 
-Currently working at Atos on a major banking project, and pursuing a Systems degree at Universidad ORT Uruguay with focus on Business Process Improvement.
+Currently working at Atos on a major banking project, and pursuing a Systems degree at Universidad ORT Uruguay 
 
 ---
 
@@ -75,7 +75,7 @@ Methodologies    →  BPM · BPR · Agile/Scrum
 Banking project (BROU). SQL validation, API testing with SoapUI, log analysis, incident reporting, team onboarding, coordination coverage.
 
 **QA Analyst @ THESE** *(Mar 2021 – Aug 2023)*  
-Full QA cycle: test case creation, black box testing, requirements analysis, web & mobile testing, metrics & reporting.
+Full QA cycle: test case creation, black box testing, web & mobile testing, metrics & reporting.
 
 ---
 
@@ -87,4 +87,4 @@ Full QA cycle: test case creation, black box testing, requirements analysis, web
 
 ---
 
-*All project samples use public APIs or anonymized data. No confidential banking information is included.*
+*All project examples use public APIs or anonymized data. No confidential banking information is included.*
